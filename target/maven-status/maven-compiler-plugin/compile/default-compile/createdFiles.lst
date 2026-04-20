@@ -1,0 +1,7 @@
+com\upeu\categorias\service\CategoriaService.class
+com\upeu\categorias\controller\CategoriaController.class
+com\upeu\categorias\repository\CategoriaRepository.class
+com\upeu\categorias\client\VentaFeignClient.class
+com\upeu\categorias\dto\CategoriaDTO.class
+com\upeu\categorias\CategoriasApplication.class
+com\upeu\categorias\entity\Categoria.class

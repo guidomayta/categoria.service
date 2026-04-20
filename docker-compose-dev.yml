@@ -1,0 +1,18 @@
+name: categorias-dev
+
+services:
+  categorias:
+    build: .
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://localhost:7071
+    ports:
+      - "8094:8094"
+    networks:
+      - categorias-network
+
+networks:
+  categorias-network:
+    driver: bridge

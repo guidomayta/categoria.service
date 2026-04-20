@@ -1,0 +1,51 @@
+name: categorias-prod
+
+services:
+  mysql-categorias:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CATEGORIAS_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${CATEGORIAS_MYSQL_DATABASE}
+    ports:
+      - "3394:3306" # Tu máquina (cliente externo) → MySQL prod
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p${CATEGORIAS_MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - mysql_categorias_data:/var/lib/mysql
+    networks:
+      - categorias-int
+
+  categorias:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql-categorias:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-categorias:3306/${CATEGORIAS_MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${CATEGORIAS_MYSQL_ROOT_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_SERVER_URL}
+      SPRING_CONFIG_IMPORT: optional:configserver:${CONFIG_SERVER_URL}
+    ports:
+      - "8094:8094"
+    networks:
+      - categorias-int
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8094/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mysql_categorias_data:
+
+networks:
+  categorias-int:
